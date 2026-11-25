@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Airdrop Tracker — Multi-Wallet + Alert</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div>
+    <h1>🪂 Airdrop Tracker</h1>
+    <p class="subtitle">Lacak banyak wallet, pantau deadline klaim, dapat alert.</p>
+  </div>
+  <div class="top-actions">
+    <button id="btn-check" class="btn primary">🔄 Cek Status Sekarang</button>
+    <span id="last-check" class="muted"></span>
+  </div>
+</header>
+
+<div class="banner">
+  ⚠️ <strong>Katalog Temukan adalah daftar awal (November 2026).</strong>
+  Selalu verifikasi tanggal, status, dan link resmi di kanal resmi proyek sebelum klaim.
+  Tracker ini <strong>tidak pernah</strong> meminta seed phrase atau private key — hanya alamat publik (0x…).
+</div>
+
+<main>
+  <!-- Radar Klaim -->
+  <section class="card">
+    <h2>📡 Radar Klaim</h2>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-num" id="stat-claimable">0</div>
+        <div class="stat-label">Proyek bisa diklaim / berjalan</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" id="stat-closing">0</div>
+        <div class="stat-label">Segera berakhir (≤ 7 hari)</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num small" id="stat-nearest">—</div>
+        <div class="stat-label">Deadline terdekat</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Alerts -->
+  <section class="card">
+    <h2>🔔 Alert <span id="alert-count" class="pill"></span></h2>
+    <button id="btn-read-all" class="btn small">Tandai semua dibaca</button>
+    <ul id="alerts-list" class="alerts"></ul>
+  </section>
+
+  <!-- Wallets -->
+  <section class="card">
+    <h2>👛 Wallet</h2>
+    <form id="wallet-form" class="form-row">
+      <input id="wallet-address" type="text" placeholder="Alamat EVM (0x… 42 karakter)" required>
+      <input id="wallet-label" type="text" placeholder="Label (mis. Wallet 1)" maxlength="60">
+      <button type="submit" class="btn primary">+ Tambah Wallet</button>
+    </form>
+    <p class="muted small">Hanya alamat publik. Jangan pernah memasukkan seed phrase / private key ke mana pun.</p>
+    <ul id="wallet-list" class="list"></ul>
+  </section>
+
+  <!-- Tracked projects -->
+  <section class="card">
+    <h2>📌 Proyek yang Dilacak</h2>
+    <div id="project-list" class="grid"></div>
+    <h3>➕ Tambah proyek sendiri</h3>
+    <form id="project-form" class="form-row wrap">
+      <input id="project-name" type="text" placeholder="Nama proyek" required maxlength="120">
+      <input id="project-chain" type="text" placeholder="Chain (mis. BNB Chain)" maxlength="60">
+      <input id="project-deadline" type="date">
+      <input id="project-link" type="url" placeholder="Link resmi (https://…)">
+      <input id="project-reward" type="text" placeholder="Reward (mis. 100 TOKEN)" maxlength="200">
+      <button type="submit" class="btn">+ Tambah Proyek</button>
+    </form>
+  </section>
+
+  <!-- Enrollment matrix -->
+  <section class="card">
+    <h2>🧮 Matriks Wallet × Proyek</h2>
+    <p class="muted small">Pilih status dan isi poin untuk setiap kombinasi wallet dan proyek.</p>
+    <div class="table-wrap">
+      <table id="matrix">
+        <thead><tr id="matrix-head"></tr></thead>
+        <tbody id="matrix-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Discover catalog -->
+  <section class="card">
+    <h2>🔍 Temukan — Katalog Airdrop November 2026</h2>
+    <p class="muted small" id="catalog-note"></p>
+    <div id="catalog-list" class="grid"></div>
+  </section>
+
+  <!-- Tasks -->
+  <section class="card">
+    <h2>✅ Tugas</h2>
+    <form id="task-form" class="form-row wrap">
+      <input id="task-title" type="text" placeholder="Judul tugas (mis. Klaim Aster Stage 6)" required maxlength="200">
+      <select id="task-type">
+        <option value="once">Sekali</option>
+        <option value="daily">Harian</option>
+        <option value="weekly">Mingguan</option>
+      </select>
+      <input id="task-due" type="date">
+      <button type="submit" class="btn">+ Tambah Tugas</button>
+    </form>
+    <h3>Belum selesai</h3>
+    <ul id="tasks-pending" class="list"></ul>
+    <h3>Selesai</h3>
+    <ul id="tasks-done" class="list done"></ul>
+  </section>
+
+  <!-- Telegram settings -->
+  <section class="card">
+    <h2>✈️ Pengaturan Telegram (opsional)</h2>
+    <p class="muted small">Isi token bot untuk mengaktifkan pengiriman alert ke Telegram di versi berikutnya.
+      Token hanya tersimpan lokal di file data server ini dan <strong>tidak dikirim ke mana pun</strong> sampai kamu mengisinya.
+      Saat ini alert hanya tampil di dalam aplikasi.</p>
+    <form id="settings-form" class="form-row wrap">
+      <input id="tg-token" type="password" placeholder="Token Bot Telegram (opsional)" autocomplete="off">
+      <input id="tg-chat" type="text" placeholder="Chat ID Telegram (opsional)">
+      <button type="submit" class="btn">💾 Simpan Pengaturan</button>
+    </form>
+    <p class="muted small" id="settings-status"></p>
+  </section>
+</main>
+
+<footer class="muted small">
+  Airdrop Tracker v1 — standalone, tanpa API key, tanpa cek on-chain, tanpa auto-claim.
+  Data tersimpan lokal di server (data.json).
+</footer>
+
+<div id="toast" class="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>
